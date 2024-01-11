@@ -1,8 +1,4 @@
-library("sesame")
-
-data <- sesameDataGet('HM450.76.TCGA.matched')
-cf <- DMR(betas_ovary, anno_ovary$sampleName, ~type)
-
+# code Christoph
 
 # libraries
 

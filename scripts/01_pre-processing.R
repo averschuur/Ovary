@@ -32,8 +32,10 @@ idats_epic <- idats[file_size > 10000000]
 idats_450k <- idats[file_size < 10000000]
 
 raw_epic <- read.metharray(basenames = idats_epic, force = TRUE)
+raw_epic_ovary <- raw_epic[, t(anno$arrayId)]
 #raw_450k <- read.metharray(basenames = idats_450k)
 saveRDS(object = raw_epic, file = "./input/raw_epic.rds")
+saveRDS(object = raw_epic_ovary, file = "./input/raw_epic_ovary.rds")
 
 # preprocess data
 preprocessed_epic <- raw_epic %>%
