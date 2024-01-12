@@ -197,7 +197,7 @@ results.ranges
 #[1]  0.271228       PEG10, SGCE
 #[2]  0.304917 MIMT1, ZIM2, PEG3
 #[3]  0.355594             KCNQ1
-#-------
+#-
 #  seqinfo: 3 sequences from an unspecified genome; no seqlengths
 
 
