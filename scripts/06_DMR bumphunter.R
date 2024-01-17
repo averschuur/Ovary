@@ -197,3 +197,54 @@ head(dmrs$table, n=3)
 dim(dmrs$table)
 # 33 waarvan 4 p val <0.05
 dmr_df <- as.data.frame(dmrs$table)
+
+
+# 4. metastasis_to_ovary vs ileal primary
+anno_ovary <- anno %>%
+  filter(annotation == "metastasis_to_ovary" | annotation == "primary_ileal")
+ovary <- ovary_back_up
+ovary <- ovary[, anno_ovary$arrayId]
+
+# define phenotype of interest
+pheno <- anno_ovary$annotation
+designMatrix <- model.matrix(~ pheno)
+
+# set cutoff
+dmrs <- bumphunter(ovary, design = designMatrix, 
+                   cutoff = 0.5, B=0, type="Beta")
+
+# include permutations
+dmrs <- bumphunter(ovary, design = designMatrix, 
+                   cutoff = 0.5, B=1000, type="Beta")
+
+names(dmrs)
+head(dmrs$table, n=3)
+dim(dmrs$table)
+# 31 waarvan 6 p val <0.05
+dmr_df <- as.data.frame(dmrs$table)
+
+
+# 5. primary_teratoma vs rectal primary
+anno_ovary <- anno %>%
+  filter(annotation == "primary_teratoma" | annotation == "primary_rectal")
+anno_ovary <- anno_ovary[c(1:9, 11:14),] # remove NEC and two duplicate samples
+ovary <- ovary_back_up
+ovary <- ovary[, anno_ovary$arrayId]
+
+# define phenotype of interest
+pheno <- anno_ovary$annotation
+designMatrix <- model.matrix(~ pheno)
+
+# set cutoff
+dmrs <- bumphunter(ovary, design = designMatrix, 
+                   cutoff = 0.5, B=0, type="Beta")
+
+# include permutations
+dmrs <- bumphunter(ovary, design = designMatrix, 
+                   cutoff = 0.5, B=1000, type="Beta")
+
+names(dmrs)
+head(dmrs$table, n=3)
+dim(dmrs$table)
+# 56 waarvan 6 p val <0.05
+dmr_df <- as.data.frame(dmrs$table)

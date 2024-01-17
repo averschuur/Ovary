@@ -14,7 +14,7 @@ ui <- navbarPage("UMCU Array R tools",
                  tabPanel(tags$b("EPIC array"),              
                           # row layout with input and output definitions ----
                           fluidRow(
-                            column(2,titlePanel(h4("Select folder")),actionButton("dir",tags$b("Input directory"), icon("folder-open"),style="color: #fff; background-color: #0088c7; border-color: #ffffff")),
+                            column(2,titlePanel(h4("Select folder")),actionButton("dir",tags$b("Input directory"),icon("folder-open"),style="color: #fff; background-color: #0088c7; border-color: #ffffff")),
                             column(4,titlePanel(h4("Select sample")),selectInput("samplesEPIC", NULL,choices = inputChoicesEPIC)),
                             column(2,titlePanel(h4("Plot CNVs")),actionButton("CNVplot", tags$b("Plot CNVs"), icon("paper-plane"), style="color: #fff; background-color: #0088c7; border-color: #ffffff")),
                             column(4,titlePanel(h4("Tumor cell percentage")),textOutput("tcp"))
@@ -81,7 +81,7 @@ server <- function(input, output, session) {
     if(is.null(refData)){
       showModal(modalDialog("Loading Controls", footer=NULL))
       #refData <<- loadAndProcessControls(addCustomDetails = T)
-      refData <<- readRDS(file = "L:/pathologie/PRL/Groep-Brosens/2. Anna Vera/15. ovaryNET/Ovary/data/ControlMetSet rds/controlMetSet.rds" )
+      refData <<- readRDS(file = "T:/pathologie/PRL/Groep-Brosens/2. Anna Vera/15. ovaryNET/Ovary/data/ControlMetSet rds/controlMetSet.rds" )
       removeModal()
     }
     ## samples can either be processed 1 by 1 or all at the same time, depending on what is chosen in the app ##

@@ -52,7 +52,7 @@ anno_ovary %>%
     legend.key.size = unit(0.3, 'cm'),
     panel.grid = element_blank()) +
   guides(col = guide_legend(nrow = 1))
-ggsave("UMAP_ovary_only_annotation_20240105.png", path= "./plots/", dpi=500)
+ggsave("UMAP_ovary_only_annotation_20240115.pdf", path= "./plots/", dpi=500)
 
 
 ### Heatmap ovary + ileum ----------------------------------------------------------------------
@@ -113,41 +113,43 @@ ggsave("UMAP_ovary_ileal_annotation_20240105.png", path= "./plots/", dpi=500)
 
 
 
-### Heatmap ovary + ileum ----------------------------------------------------------------------
-sample_cor <- cor(betas_topvar_ovary_ileal_pancreatic_pulm_rectal)
-rownames(sample_cor) <- anno_ovary_ileal_pancreatic_pulm_rectal$tumorType
+### Heatmap ovary + ileum +rectum + pancreas ----------------------------------------------------------------------
+sample_cor <- cor(betas_topvar_ovary_ileal_pancreatic_rectal)
+rownames(sample_cor) <- anno_ovary_ileal_pancreatic_rectal$tumorType
 
-anno_ovary_ileal_pancreatic_pulm_rectal <- anno_ovary_ileal_pancreatic_pulm_rectal %>%
+anno_ovary_ileal_pancreatic_rectal <- anno_ovary_ileal_pancreatic_rectal %>%
   mutate(localization = case_when(tumorType == 'ovary' ~ 'ovary',
                                   tumorType == 'ilealNET' ~ 'ileal',
                                   tumorType == 'panNET' ~ 'pancreatic',
                                   tumorType == 'pulmNET' ~ 'pulmonary',
                                   tumorType == 'rectalNET' ~ 'rectal')) %>%
-  mutate(type = case_when(location == 'primary_teratoma' ~ 'primary_teratoma',
+  mutate(type = case_when(location == 'primary_teratoma' ~ 'PONWT',
+                          location == 'primary' & tumorType == "ovary" ~ 'PONNT',
                           location == 'primary' ~ 'primary',
-                          location == 'metastasis_midgut' ~ 'metastasis',
-                          location == 'metastasis_rectum' ~ 'metastasis',
-                          location == 'metastasis_pancreas' ~ 'metastasis',
+                          location == 'metastasis_midgut' ~ 'NOM',
+                          location == 'metastasis_rectum' ~ 'NOM',
+                          location == 'metastasis_pancreas' ~ 'NOM',
                           location == 'metastasis' ~ 'metastasis'))
 
-localization = anno_ovary_ileal_pancreatic_pulm_rectal$localization
-type = anno_ovary_ileal_pancreatic_pulm_rectal$type
+localization = anno_ovary_ileal_pancreatic_rectal$localization
+type = anno_ovary_ileal_pancreatic_rectal$type
 
 row_ha = rowAnnotation(
   localization = localization,
   type = type)
 
 
-pdf(file="heatmap_ovary_ileal_pancreatic_pulm_rectal_20240105.pdf", width=10, height=8)
+pdf(file="heatmap_ovary_ileal_pancreatic_rectal_20240115.pdf", width=10, height=8)
 Heatmap(sample_cor, show_column_names = FALSE, show_row_names = FALSE, right_annotation = row_ha)
 dev.off()
 
 
-### UMAP ovary + ileum = pancreas + pulmonary + rectum -------------------------------------------------------------------------
+### UMAP ovary + ileum + pancreas + rectum -------------------------------------------------------------------------
 
-anno_ovary_ileal_pancreatic_pulm_rectal %>% 
+anno_ovary_ileal_pancreatic_rectal %>% 
   ggplot(aes(umap_x, umap_y)) + 
   geom_point(aes(col = localization, shape = type), size = 3) +
+  scale_shape_manual(values=c(15, 19, 17, 18))+
   #geom_text(aes(label = Label), size = 4, nudge_y = 0.1) +
   labs(#title="UMAP Clustering",
     x = "UMAP 1", 
@@ -169,4 +171,4 @@ anno_ovary_ileal_pancreatic_pulm_rectal %>%
     legend.key.size = unit(0.3, 'cm'),
     panel.grid = element_blank()) +
   guides(col = guide_legend(nrow = 1))
-ggsave("UMAP_ovary_ileal_pancreatic_pulm_rectal_20240105.png", path= "./plots/", dpi=500)
+ggsave("UMAP_ovary_ileal_pancreatic_rectal_20240115.pdf", path= "./plots/", dpi=500)
