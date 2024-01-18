@@ -19,11 +19,13 @@ anno_ovary <- anno_ovary %>%
 
 
 annotation = anno_ovary$annotation
+Chr18 = anno_ovary_ileal_pancreatic_rectal$Chr18
 
 row_ha = rowAnnotation(
-  tumortype = annotation)
+  tumortype = annotation,
+  Chr18 = Chr18)
 
-pdf(file="heatmap_ovary_20240105.pdf", width=9, height=8)
+pdf(file="heatmap_ovary_20240115.pdf", width=9, height=8)
 Heatmap(sample_cor, clustering_distance_rows = "euclidean", show_column_names = FALSE, show_row_names = FALSE, right_annotation = row_ha)
 dev.off()
 
@@ -52,7 +54,7 @@ anno_ovary %>%
     legend.key.size = unit(0.3, 'cm'),
     panel.grid = element_blank()) +
   guides(col = guide_legend(nrow = 1))
-ggsave("UMAP_ovary_only_annotation_20240115.pdf", path= "./plots/", dpi=500)
+ggsave("UMAP_ovary_only_annotation_20240118.pdf", path= "./plots/", dpi=500)
 
 
 ### Heatmap ovary + ileum ----------------------------------------------------------------------
@@ -113,7 +115,7 @@ ggsave("UMAP_ovary_ileal_annotation_20240105.png", path= "./plots/", dpi=500)
 
 
 
-### Heatmap ovary + ileum +rectum + pancreas ----------------------------------------------------------------------
+### Heatmap ovary + ileum + pancreas + rectum  ----------------------------------------------------------------------
 sample_cor <- cor(betas_topvar_ovary_ileal_pancreatic_rectal)
 rownames(sample_cor) <- anno_ovary_ileal_pancreatic_rectal$tumorType
 
@@ -133,14 +135,19 @@ anno_ovary_ileal_pancreatic_rectal <- anno_ovary_ileal_pancreatic_rectal %>%
 
 localization = anno_ovary_ileal_pancreatic_rectal$localization
 type = anno_ovary_ileal_pancreatic_rectal$type
+Chr18 = anno_ovary_ileal_pancreatic_rectal$Chr18
+
+row_ha = rowAnnotation(
+  localization = localization,
+  type = type,
+  Chr18 = Chr18)
 
 row_ha = rowAnnotation(
   localization = localization,
   type = type)
 
-
-pdf(file="heatmap_ovary_ileal_pancreatic_rectal_20240115.pdf", width=10, height=8)
-Heatmap(sample_cor, show_column_names = FALSE, show_row_names = FALSE, right_annotation = row_ha)
+pdf(file="heatmap_ovary_ileal_pancreatic_rectal_chr18loss_20240118.pdf", width=10, height=8)
+Heatmap(sample_cor, show_column_names = FALSE, show_row_names = FALSE, left_annotation = row_ha)
 dev.off()
 
 
@@ -171,4 +178,122 @@ anno_ovary_ileal_pancreatic_rectal %>%
     legend.key.size = unit(0.3, 'cm'),
     panel.grid = element_blank()) +
   guides(col = guide_legend(nrow = 1))
-ggsave("UMAP_ovary_ileal_pancreatic_rectal_20240115.pdf", path= "./plots/", dpi=500)
+ggsave("UMAP_ovary_ileal_pancreatic_rectal_20240118.pdf", path= "./plots/", dpi=500)
+
+
+### Heatmap ovary + ileum + pancreas + rectum + pulm ----------------------------------------------------------------------
+sample_cor <- cor(betas_topvar_ovary_ileal_pancreatic_rectal_pulm)
+rownames(sample_cor) <- anno_ovary_ileal_pancreatic_rectal_pulm$tumorType
+
+anno_ovary_ileal_pancreatic_rectal_pulm <- anno_ovary_ileal_pancreatic_rectal_pulm %>%
+  mutate(localization = case_when(tumorType == 'ovary' ~ 'ovary',
+                                  tumorType == 'ilealNET' ~ 'ileal',
+                                  tumorType == 'panNET' ~ 'pancreatic',
+                                  tumorType == 'pulmNET' ~ 'pulmonary',
+                                  tumorType == 'rectalNET' ~ 'rectal')) %>%
+  mutate(type = case_when(location == 'primary_teratoma' ~ 'PONWT',
+                          location == 'primary' & tumorType == "ovary" ~ 'PONNT',
+                          location == 'primary' ~ 'primary',
+                          location == 'metastasis_midgut' ~ 'NOM',
+                          location == 'metastasis_rectum' ~ 'NOM',
+                          location == 'metastasis_pancreas' ~ 'NOM',
+                          location == 'metastasis' ~ 'metastasis'))
+
+localization = anno_ovary_ileal_pancreatic_rectal_pulm$localization
+type = anno_ovary_ileal_pancreatic_rectal_pulm$type
+
+row_ha = rowAnnotation(
+  localization = localization,
+  type = type)
+
+pdf(file="./plots/heatmap_ovary_ileal_pancreatic_rectal_pulm_c20240118.pdf", width=10, height=8)
+Heatmap(sample_cor, show_column_names = FALSE, show_row_names = FALSE, left_annotation = row_ha)
+dev.off()
+
+### UMAP ovary + ileum + pancreas + rectum -------------------------------------------------------------------------
+
+anno_ovary_ileal_pancreatic_rectal_pulm %>% 
+  ggplot(aes(umap_x, umap_y)) + 
+  geom_point(aes(col = localization, shape = type), size = 3) +
+  scale_shape_manual(values=c(15, 19, 17, 18))+
+  #geom_text(aes(label = Label), size = 4, nudge_y = 0.1) +
+  labs(#title="UMAP Clustering",
+    x = "UMAP 1", 
+    y = "UMAP 2",
+    col = "Tumor Type") +
+  theme_bw(base_size = 18) +
+  theme(#plot.title = element_text(face = "bold", hjust = 0, size = 12),
+    axis.title.x = element_text(face = "bold", hjust = 0.5, vjust=0, size = 10),
+    axis.title.y = element_text(face = "bold", hjust = 0.5, vjust=2, size = 10),
+    axis.text.x = element_text(face = "bold", size = 9),
+    axis.text.y = element_text(face = "bold", size = 9),
+    axis.ticks.length.y =unit(.05, "cm"),
+    legend.position = "bottom",
+    #legend.margin=margin(0,0,0,0),
+    legend.box = "horizontal",
+    legend.box.just = "left",
+    legend.title = element_text(face = "bold", size = 10),
+    legend.text = element_text(size = 10),
+    legend.key.size = unit(0.3, 'cm'),
+    panel.grid = element_blank()) +
+  guides(col = guide_legend(nrow = 1))
+ggsave("UMAP_ovary_ileal_pancreatic_rectal_pulm_20240118.png", path= "./plots/", dpi=500)
+
+
+
+
+### Chr 18 loss UMAP ovary -------------------------------------------------------------------------
+anno_ovary %>% 
+  ggplot(aes(umap_x, umap_y)) + 
+  geom_point(aes(color = Chr18), shape=19, size = 3) +
+  #geom_text(aes(label = Label), size = 4, nudge_y = 0.1) +
+  labs(#title="UMAP Clustering",
+    x = "UMAP 1", 
+    y = "UMAP 2",
+    col = "Tumor Type") +
+  theme_bw(base_size = 18) +
+  theme(#plot.title = element_text(face = "bold", hjust = 0, size = 12),
+    axis.title.x = element_text(face = "bold", hjust = 0.5, vjust=0, size = 10),
+    axis.title.y = element_text(face = "bold", hjust = 0.5, vjust=2, size = 10),
+    axis.text.x = element_text(face = "bold", size = 9),
+    axis.text.y = element_text(face = "bold", size = 9),
+    axis.ticks.length.y =unit(.05, "cm"),
+    legend.position = "bottom",
+    #legend.margin=margin(0,0,0,0),
+    legend.box = "horizontal",
+    legend.box.just = "left",
+    legend.title = element_text(face = "bold", size = 10),
+    legend.text = element_text(size = 10),
+    legend.key.size = unit(0.3, 'cm'),
+    panel.grid = element_blank()) +
+  guides(col = guide_legend(nrow = 1))
+ggsave("UMAP_ovary_only_Chr18 loss_20240118.pdf", path= "./plots/", dpi=500)
+
+### Chr 18 loss UMAP ovary + ileum + pancreas + rectum -------------------------------------------------------------------------
+
+anno_ovary_ileal_pancreatic_rectal %>% 
+  ggplot(aes(umap_x, umap_y)) + 
+  geom_point(aes(col = Chr18), size = 3) +
+  scale_shape_manual(values=c(15, 19, 17, 18))+
+  #geom_text(aes(label = Label), size = 4, nudge_y = 0.1) +
+  labs(#title="UMAP Clustering",
+    x = "UMAP 1", 
+    y = "UMAP 2",
+    col = "Tumor Type") +
+  theme_bw(base_size = 18) +
+  theme(#plot.title = element_text(face = "bold", hjust = 0, size = 12),
+    axis.title.x = element_text(face = "bold", hjust = 0.5, vjust=0, size = 10),
+    axis.title.y = element_text(face = "bold", hjust = 0.5, vjust=2, size = 10),
+    axis.text.x = element_text(face = "bold", size = 9),
+    axis.text.y = element_text(face = "bold", size = 9),
+    axis.ticks.length.y =unit(.05, "cm"),
+    legend.position = "bottom",
+    #legend.margin=margin(0,0,0,0),
+    legend.box = "horizontal",
+    legend.box.just = "left",
+    legend.title = element_text(face = "bold", size = 10),
+    legend.text = element_text(size = 10),
+    legend.key.size = unit(0.3, 'cm'),
+    panel.grid = element_blank()) +
+  guides(col = guide_legend(nrow = 1))
+ggsave("UMAP_ovary_ileal_pancreatic_rectal_Chr18loss_20240118.pdf", path= "./plots/", dpi=500)

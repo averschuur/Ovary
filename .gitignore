@@ -8,3 +8,5 @@ input/betas_filtered.rds
 input/raw_epic.rds
 input/raw_epic_ovary.rds
 plots/
+scripts/EPIC_functions v3
+scripts/MethylationtoCNVapp

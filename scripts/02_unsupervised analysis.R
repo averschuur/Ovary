@@ -30,11 +30,12 @@ anno <- anno %>%
                                 location == 'metastasis'& tumorType == 'ilealNET' ~ 'ileal_metastasis',
                                 location == 'primary' & tumorType == 'rectalNET' ~ 'primary_rectal',
                                 location == 'metastasis'& tumorType == 'rectalNET' ~ 'rectal_metastasis',
-                                location == 'primary' & tumorType == 'pulmNET' ~ 'primary_pulmonall',
-                                location == 'primary' & tumorType == 'pulmNEC' ~ 'primary_pulmonall'))
+                                location == 'primary' & tumorType == 'panNET' ~ 'primary_pancreatic',
+                                location == 'primary' & tumorType == 'pulmNET' ~ 'primary_pulmonal',
+                                location == 'primary' & tumorType == 'pulmNEC' ~ 'primary_pulmonal'))
 
 
-# load unfiltered beta values
+## load unfiltered beta values -------------------------------------------
 betas <- readRDS("./input/betas_everything.rds")
 betas <- betas[, anno$arrayId]
 
@@ -65,7 +66,7 @@ anno <- anno %>%
          avg_beta_unfiltered = apply(betas, 2, mean, na.rm = TRUE))
 
 
-### plot basic statistics for the data set ---------------------------------------
+## plot basic statistics for the data set ---------------------------------------
 
 # overview of all variables
 anno %>% 
@@ -144,7 +145,7 @@ rm(absolute, estimate, betas)
 
 
 
-### Ovary only --------------------------------------------------------------------------------------------------------------
+## Ovary only --------------------------------------------------------------------------------------------------------------
 
 # load filtered beta values
 betas <- readRDS("./input/betas_filtered.rds")
@@ -182,13 +183,15 @@ anno_ovary <- anno_ovary %>%
          umap_y = umap$layout[, 2],
          Label = sampleName)
 
-#saveRDS(object = umap, file = "./output/umap_model_ovary_20240105.rds")
-#saveRDS(object = anno_ovary, file = "./output/sample_annotation_umap_purity_ovary_20240105.rds")
+#saveRDS(object = umap, file = "./output/umap_model_ovary_20240118.rds")
+#saveRDS(object = anno_ovary, file = "./output/sample_annotation_umap_purity_ovary_20240118.rds")
 
+umap <- readRDS("./output/umap_model_ovary_20240118.rds")
+anno_ovary <- readRDS("./output/sample_annotation_umap_purity_ovary_20240118.rds")
 
 # plot UMAP
 anno_ovary %>% 
-  ggplot(aes(umap_x, umap_y, col = annotation)) +
+  ggplot(aes(umap_x, umap_y, col = Chr18)) +
   geom_point(size = 4) +
   geom_text(aes(label = Label), size = 4, nudge_y = 0.1) +
   theme_classic(base_size = 24) +
@@ -262,7 +265,7 @@ ggsave("UMAP_ovary_only.png", path= "./plots/")
 
 
 
-## all --------------------------------------------------------------------------
+## Ovary + ileal + pancreatic + rectal NET --------------------------------------------------------------------------
 
 anno_ovary_ileal_pancreatic_rectal <- anno %>%
   filter(tumorType == "ovary" | tumorType == "ilealNET" | tumorType == "rectalNET" | tumorType == "panNET")
@@ -272,7 +275,8 @@ betas_ovary_ileal_pancreatic_rectal <- betas[, anno_ovary_ileal_pancreatic_recta
 # determine most variable probes across dataset and subset beta values
 probe_var_ovary_ileal_pancreatic_rectal <- apply(betas_ovary_ileal_pancreatic_rectal, 1, var)
 probes_topvar_ovary_ileal_pancreatic_rectal <- rownames(betas_ovary_ileal_pancreatic_rectal)[order(probe_var_ovary_ileal_pancreatic_rectal, decreasing = TRUE)]
-saveRDS(object = probes_topvar_ovary_ileal_pancreatic_rectal, file = "./output/top_variable_probes_ovary_ileal_pancreatic_rectal_200240115.rds")
+#saveRDS(object = probes_topvar_ovary_ileal_pancreatic_rectal, file = "./output/top_variable_probes_ovary_ileal_pancreatic_rectal_200240118.rds")
+probes_topvar_ovary_ileal_pancreatic_rectal <- readRDS("./output/top_variable_probes_ovary_ileal_pancreatic_rectal_200240118.rds")
 
 # pick betas for 5,000 top variable probes
 betas_topvar_ovary_ileal_pancreatic_rectal <- betas_ovary_ileal_pancreatic_rectal[probes_topvar_ovary_ileal_pancreatic_rectal[1:5000], ]
@@ -297,20 +301,16 @@ anno_ovary_ileal_pancreatic_rectal <- anno_ovary_ileal_pancreatic_rectal %>%
   mutate(umap_x = umap$layout[, 1], 
          umap_y = umap$layout[, 2])
 
-#saveRDS(object = umap, file = "./output/umap_model_ovary_ileal_pancreatic_pulm_rectal.rds")
-#saveRDS(object = anno, file = "./output/sample_annotation_umap_purity_ovary_ileal_pancreatic_pulm_rectal.rds")
+#saveRDS(object = umap, file = "./output/umap_model_ovary_ileal_pancreatic_rectal_20240118.rds")
+#saveRDS(object = anno_ovary_ileal_pancreatic_rectal, file = "./output/sample_annotation_umap_purity_ovary_ileal_pancreatic_rectal_20240118.rds")
 
-anno_ovary_ileal_pancreatic_rectal <- anno_ovary_ileal_pancreatic_pulm_rectal %>%
-  mutate(annotation = case_when(location == 'primary_teratoma' ~ 'primary_teratoma',
-                                location == 'primary' ~ 'primary',
-                                location == 'metastasis_midgut' ~ 'metastasis_to_ovary',
-                                location == 'metastasis_rectum' ~ 'metastasis_to_ovary',
-                                location == 'metastasis_pancreas' ~ 'metastasis_to_ovary',
-                                location == 'metastasis' ~ 'metastasis'))
+umap <- readRDS("./output/umap_model_ovary_ileal_pancreatic_rectal_20240118.rds")
+anno_ovary_ileal_pancreatic_rectal <- readRDS("./output/sample_annotation_umap_purity_ovary_ileal_pancreatic_rectal_20240118.rds")
+
 
 # plot UMAP
 anno_ovary_ileal_pancreatic_rectal %>% 
-  ggplot(aes(umap_x, umap_y, col = tumorType, shape = annotation)) +
+  ggplot(aes(umap_x, umap_y, col = tumorType)) +
   geom_point(size = 4) +
   geom_text(aes(label = sampleName), size = 4) +
   theme_classic(base_size = 24) +
@@ -319,6 +319,59 @@ anno_ovary_ileal_pancreatic_rectal %>%
 ggsave("UMAP_ovary_ileal_pancreatic_rectal_20240115.png", path= "./plots/")
 
 
+## Ovary + ileal + pancreatic + rectal + pulm NET --------------------------------------------------------------------------
+
+# load filtered beta values
+betas <- readRDS("./input/betas_filtered.rds")
+
+# select tumors
+anno_ovary_ileal_pancreatic_rectal_pulm <- anno %>%
+  filter(tumorType == "ovary" | tumorType == "ilealNET" | tumorType == "rectalNET" | tumorType == "panNET" | tumorType == "pulmNET")
+anno_ovary_ileal_pancreatic_rectal_pulm <- anno_ovary_ileal_pancreatic_rectal_pulm[c(1:9, 11:29, 32:40, 42:62,64,66:71),]
+betas_ovary_ileal_pancreatic_rectal_pulm <- betas[, anno_ovary_ileal_pancreatic_rectal_pulm$arrayId]
+
+# determine most variable probes across dataset and subset beta values
+probe_var_ovary_ileal_pancreatic_rectal_pulm <- apply(betas_ovary_ileal_pancreatic_rectal_pulm, 1, var)
+probes_topvar_ovary_ileal_pancreatic_rectal_pulm <- rownames(betas_ovary_ileal_pancreatic_rectal_pulm)[order(probe_var_ovary_ileal_pancreatic_rectal_pulm, decreasing = TRUE)]
+#saveRDS(object = probes_topvar_ovary_ileal_pancreatic_rectal_pulm, file = "./output/top_variable_probes_ovary_ileal_pancreatic_rectal_pulm_200240118.rds")
+probes_topvar_ovary_ileal_pancreatic_rectal_pulm <- readRDS("./output/top_variable_probes_ovary_ileal_pancreatic_rectal_pulm_200240118.rds")
+
+# pick betas for 5,000 top variable probes
+betas_topvar_ovary_ileal_pancreatic_rectal_pulm <- betas_ovary_ileal_pancreatic_rectal_pulm[probes_topvar_ovary_ileal_pancreatic_rectal_pulm[1:5000], ]
 
 
+# heatmap of sample-wise correlations
+sample_cor <- cor(betas_topvar_ovary_ileal_pancreatic_rectal_pulm)
 
+rownames(sample_cor) <- anno_ovary_ileal_pancreatic_rectal_pulm$tumorType
+pheatmap::pheatmap(sample_cor, labels_row = anno_ovary_ileal_pancreatic_rectal_pulm$sampleName, show_colnames = FALSE)
+
+
+# run UMAP
+set.seed(45098)
+umap_settings <- umap.defaults
+umap_settings$n_neighbors = 20
+umap_settings$min_dist = 0.2
+
+umap<- umap(d = t(betas_topvar_ovary_ileal_pancreatic_rectal_pulm), config = umap_settings, ret_model = TRUE)
+
+anno_ovary_ileal_pancreatic_rectal_pulm <- anno_ovary_ileal_pancreatic_rectal_pulm %>% 
+  mutate(umap_x = umap$layout[, 1], 
+         umap_y = umap$layout[, 2])
+
+#saveRDS(object = umap, file = "./output/umap_model_ovary_ileal_pancreatic_rectal_pulm_20240118.rds")
+#saveRDS(object = anno_ovary_ileal_pancreatic_rectal, file = "./output/sample_annotation_umap_purity_ovary_ileal_pancreatic_rectal_pulm_20240118.rds")
+
+#umap <- readRDS("./output/umap_model_ovary_ileal_pancreatic_rectal_pulm_20240118.rds")
+#anno_ovary_ileal_pancreatic_rectal <- readRDS("./output/sample_annotation_umap_purity_ovary_ileal_pancreatic_rectal_pulm_20240118.rds")
+
+
+# plot UMAP
+anno_ovary_ileal_pancreatic_rectal_pulm %>% 
+  ggplot(aes(umap_x, umap_y, col = tumorType)) +
+  geom_point(size = 4) +
+  #geom_text(aes(label = sampleName), size = 4) +
+  theme_classic(base_size = 24) +
+  theme(legend.position = "right") +
+  labs(x = "UMAP 1", y = "UMAP 2")
+ggsave("UMAP_ovary_ileal_pancreatic_rectal_20240115.png", path= "./plots/")
