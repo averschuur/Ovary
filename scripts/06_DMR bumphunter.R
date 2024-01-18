@@ -116,6 +116,13 @@ raw_epic <- readRDS("./input/raw_epic_ovary.rds")
 
 detP <- detectionP(raw_epic)
 
+set.seed(123)  # Setting a seed for reproducibility
+n <- nrow(detP)
+rows_to_apply <- sample(1:n, size = 0.25 * n)  # Selecting 25% of the rows randomly
+remove <- apply(detP[rows_to_apply, ], 1, function(x) any(x > 0.01))
+
+
+
 remove <- apply(detP, 1, function (x) any(x > 0.01))
 ovary <- preprocessFunnorm(raw_epic)
 ovary_back_up <- ovary
@@ -146,7 +153,7 @@ head(dmrs$table, n=3)
 dim(dmrs$table)
 #[1] 27 14 > 27 DMRs, waarvan 1 pval <0,05
 dmr_df <- as.data.frame(dmrs$table)
-
+write.xlsx(dmr_df, "./output/dmr_df_ovary_other_detP.xlsx")
 
 # 2. primary not in teratoma vs ileal metastasis
 anno_ovary <- anno %>%

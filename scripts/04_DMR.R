@@ -13,15 +13,16 @@ source("./scripts/0_helpers.R")
 
 ### OVARY --------------------------------------------------------------------------
 # import sample annotation
-sample_anno <- readRDS(file = "./output/sample_annotation_umap_purity_ovary_20240105.rds")
-sample_anno <- sample_anno[1:16,]
-  
+sample_anno <- readRDS("./output/sample_annotation_umap_purity_ovary_20240118.rds")
+
 # import betas 
 betas <- readRDS("./input/betas_filtered.rds")
 betas <- betas[, sample_anno$arrayId]
 
 # import most variable probes
-topvar_probes <- readRDS("./output/top_variable_probes_ovary_20240105.rds")
+topvar_probes <- readRDS("./output/top_variable_probes_ovary_20240118.rds")
+
+# pick betas for 5,000 top variable probes
 topvar_probes <- topvar_probes[1:5000]
 betas_topvar <- betas[topvar_probes, ]
 #betas_topvar <- betas[sample(1:nrow(betas), size = 5000), ]

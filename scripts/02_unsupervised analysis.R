@@ -157,8 +157,8 @@ anno_ovary <- anno_ovary[c(1:9, 11:17),]
 betas_ovary <- betas[, anno_ovary$arrayId]
 probe_var_ovary <- apply(betas_ovary, 1, var)
 probes_topvar_ovary <- rownames(betas_ovary)[order(probe_var_ovary, decreasing = TRUE)]
-#saveRDS(object = probes_topvar_ovary, file = "./output/top_variable_probes_ovary_20240105.rds")
-probes_topvar_ovary <- readRDS("./output/top_variable_probes_ovary_20240105.rds")
+#saveRDS(object = probes_topvar_ovary, file = "./output/top_variable_probes_ovary_20240118.rds")
+probes_topvar_ovary <- readRDS("./output/top_variable_probes_ovary_20240118.rds")
 
 # pick betas for 5,000 top variable probes
 betas_topvar_ovary <- betas_ovary[probes_topvar_ovary[1:5000], ]
